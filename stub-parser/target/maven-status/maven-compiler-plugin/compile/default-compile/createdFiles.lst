@@ -1,0 +1,7 @@
+org/apache/jdbc/benchmark/parser/TokenMgrError.class
+org/apache/jdbc/benchmark/parser/StubParser.class
+org/apache/jdbc/benchmark/parser/ParseException.class
+org/apache/jdbc/benchmark/parser/SimpleCharStream.class
+org/apache/jdbc/benchmark/parser/StubParserTokenManager.class
+org/apache/jdbc/benchmark/parser/Token.class
+org/apache/jdbc/benchmark/parser/StubParserConstants.class

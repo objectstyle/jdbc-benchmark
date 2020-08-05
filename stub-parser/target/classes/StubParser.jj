@@ -1,0 +1,193 @@
+PARSER_BEGIN(StubParser)
+
+package org.apache.jdbc.benchmark.parser;
+
+import org.apache.jdbc.benchmark.descriptor.ResultDescription;
+import org.apache.jdbc.benchmark.descriptor.ColumnDescriptor;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Map;
+
+public class StubParser {
+
+    /** Main entry point. */
+    static StubParser parser = null ;
+
+    public static ResultDescription initParser(InputStream inputStream) throws ParseException, TokenMgrError {
+        if (parser == null) {
+            parser = new StubParser(inputStream);
+        } else {
+            parser.ReInit(inputStream);
+        }
+        return Input();
+    }
+}
+
+PARSER_END(StubParser)
+
+SKIP :
+{
+  " " | "\t" | "\n" | "\r"
+}
+
+TOKEN :
+{
+  <SELECT: "SELECT" | "select">
+| <UPDATE: "UPDATE" | "update" | "INSERT" | "insert">
+| <FROM: "FROM" | "from">
+| <JOIN: "LEFT JOIN" | "JOIN" | "RIGHT JOIN" | "INNER JOIN" | "join">
+| <ON: "ON" | "on">
+| <WHERE: "WHERE" | "where">
+| <LIKE: "LIKE" | "like">
+| <UPPER: "UPPER">
+| <DISTINCT: "DISTINCT">
+| <AS: "AS" | "as">
+| <comma: ",">
+| <dot: ".">
+| <equally: "=">
+| <question: "?">
+| <obra: "(">
+| <cbra: ")">
+}
+
+TOKEN :
+{
+  <COLUMN: (["a"-"z","A"-"Z","0"-"9","_"])+>
+}
+
+ResultDescription Input() :
+{
+        ResultDescription resultDescription = new ResultDescription();
+        ColumnDescriptor columnDescriptor = new ColumnDescriptor();
+        String[] leftTable = new String[2];
+        String[] rightTable = new String[2];
+        ColumnDescriptor unionField1 = new ColumnDescriptor();
+        ColumnDescriptor unionField2 = new ColumnDescriptor();
+        ColumnDescriptor where = new ColumnDescriptor();
+}
+{
+    <SELECT> (
+        ( <DISTINCT> )* Select(resultDescription.getColumnDescriptorArrayList(), resultDescription.getLabelsForColumns(), columnDescriptor) <FROM> Table(leftTable)
+        ( <JOIN> Table(rightTable)
+            { resultDescription.setJoin(true); }
+            <ON>
+            ( <obra> )*
+                Column(unionField1)
+            <equally>
+                Column(unionField2)
+            ( <cbra> )*
+        )*
+        ( <WHERE>
+            Where(where)
+            {
+                resultDescription.setWhere(true);
+            }
+        )*
+        <EOF>
+        {
+            for (ColumnDescriptor descriptor : resultDescription.getColumnDescriptorArrayList()) {
+                changeTableName(descriptor, leftTable, rightTable[1]);
+            }
+            resultDescription.setTableLeftName(leftTable[1]);
+            if (rightTable[1] != null) {
+                resultDescription.setTableRightName(rightTable[1]);
+                changeTableName(unionField1, leftTable, rightTable[1]);
+                changeTableName(unionField2, leftTable, rightTable[1]);
+                resultDescription.getUnionColumn().add(unionField1);
+                resultDescription.getUnionColumn().add(unionField2);
+            }
+            if (resultDescription.getWhere()) {
+                changeTableName(where, leftTable, rightTable[1]);
+                resultDescription.getWhereColumnDescriptorArrayList().add(where);
+            }
+        }
+        { return resultDescription; }
+    ) | { return resultDescription; }
+}
+
+void Select(ArrayList<ColumnDescriptor> columnDescriptors, Map<String, String> labelsForColumns, ColumnDescriptor columnDescriptor) :
+{
+    Token label;
+}
+{
+     Column(columnDescriptor)
+    { columnDescriptors.add(new ColumnDescriptor(columnDescriptor.getName(), columnDescriptor.getTableName())); }
+    (
+        <AS> label = <COLUMN>
+        { labelsForColumns.put(label.image, columnDescriptor.getName()); }
+    )*
+    (
+        <comma> Column(columnDescriptor)
+        { columnDescriptors.add(new ColumnDescriptor(columnDescriptor.getName(), columnDescriptor.getTableName())); }
+        (
+            <AS> label = <COLUMN>
+            { labelsForColumns.put(label.image, columnDescriptor.getName()); }
+        )*
+    )*
+    { return; }
+}
+
+void Column(ColumnDescriptor columnDescriptor) :
+{
+      Token column;
+}
+{
+     column = <COLUMN>
+     (
+        "."
+        { columnDescriptor.setTableName(column.image); }
+        column = <COLUMN>
+        {
+            columnDescriptor.setName(column.image);
+            return;
+        }
+     )*
+    {
+        columnDescriptor.setTableName("null");
+        columnDescriptor.setName(column.image);
+        return;
+    }
+}
+
+void Table(String[] strings) :
+{
+      Token table;
+}
+{
+     table = <COLUMN>
+     ( <dot> table = <COLUMN> )*
+     { strings[1] = table.image; }
+     (
+        table = <COLUMN>
+        { strings[0] = table.image; }
+     )*
+     { return; }
+}
+
+void Where(ColumnDescriptor columnDescriptor) :
+{
+    Token param;
+}
+{
+    ( <UPPER><obra> )* Column(columnDescriptor)
+        ( <cbra> )*
+        ( <equally> | <LIKE> )
+        ( <UPPER><obra> )*
+        param = <question>
+        ( <cbra> )*
+    {
+        columnDescriptor.setWhereParam(param.image);
+        return;
+    }
+}
+
+void changeTableName(ColumnDescriptor columnDescriptor, String[] leftTable, String rightTable) : { }
+{
+    {
+        if (columnDescriptor.getTableName().equals(leftTable[0])) {
+            columnDescriptor.setTableName(leftTable[1]);
+        } else {
+            columnDescriptor.setTableName(rightTable);
+        }
+    }
+}
