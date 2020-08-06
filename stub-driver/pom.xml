@@ -33,32 +33,18 @@
         <dependency>
             <groupId>org.apache.cayenne</groupId>
             <artifactId>cayenne-server</artifactId>
-            <version>4.2.M1-SNAPSHOT</version>
+            <version>4.2.M1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.jdbc.benchmark</groupId>
+            <groupId>com.objectstyle.jdbc.benchmark</groupId>
             <artifactId>stub-parser</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.jdbc.benchmark</groupId>
+            <groupId>com.objectstyle.jdbc.benchmark</groupId>
             <artifactId>descriptor</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
