@@ -51,19 +51,7 @@
     </dependencies>
 
     <properties>
-        <!--
-            JMH version to use with this project.
-          -->
         <jmh.version>1.21</jmh.version>
-
-        <!--
-            Java source/target to use for compilation.
-          -->
-        <javac.target>1.8</javac.target>
-
-        <!--
-            Name of the benchmark Uber-JAR to generate.
-          -->
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
 
@@ -72,7 +60,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
