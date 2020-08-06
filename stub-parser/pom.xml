@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>jdbc-benchmark</artifactId>
-        <groupId>org.apache.jdbc.benchmark</groupId>
-        <version>1.0</version>
+        <groupId>com.objectstyle.jdbc.benchmark</groupId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,7 @@
             <version>4.1</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.jdbc.benchmark</groupId>
+            <groupId>com.objectstyle.jdbc.benchmark</groupId>
             <artifactId>descriptor</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
